@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { GameState, Team, Category, GameSettings } from "../types/game";
 import { categories } from "../data/categories";
 import { generateWord, getAIStatus } from "../services/aiService";
@@ -24,6 +24,88 @@ const defaultTeamColors = [
   "#0891B2",
 ];
 
+// Sistema de áudio otimizado
+class AudioManager {
+  private audioContext: AudioContext | null = null;
+  private gainNode: GainNode | null = null;
+  private oscillator: OscillatorNode | null = null;
+  private isInitialized = false;
+
+  async init() {
+    if (this.isInitialized) return;
+    
+    try {
+      this.audioContext = new window.AudioContext();
+      this.gainNode = this.audioContext.createGain();
+      this.gainNode.connect(this.audioContext.destination);
+      this.isInitialized = true;
+    } catch (error) {
+      console.warn('Audio não suportado:', error);
+    }
+  }
+
+  private createOscillator() {
+    if (!this.audioContext || !this.gainNode) return null;
+    
+    const oscillator = this.audioContext.createOscillator();
+    oscillator.connect(this.gainNode);
+    return oscillator;
+  }
+
+  playSound(type: "tick" | "warning" | "timeup" | "success") {
+    if (!this.audioContext || !this.gainNode) return;
+
+    try {
+      const oscillator = this.createOscillator();
+      if (!oscillator) return;
+
+      const now = this.audioContext.currentTime;
+
+      switch (type) {
+        // case "tick":
+        //   oscillator.frequency.setValueAtTime(800, now);
+        //   this.gainNode.gain.setValueAtTime(0.1, now);
+        //   oscillator.start(now);
+        //   oscillator.stop(now + 0.1);
+        //   break;
+
+        case "warning":
+          oscillator.frequency.setValueAtTime(1000, now);
+          this.gainNode.gain.setValueAtTime(0.15, now);
+          oscillator.start(now);
+          oscillator.stop(now + 0.15);
+          break;
+
+        case "timeup":
+          oscillator.frequency.setValueAtTime(400, now);
+          oscillator.frequency.setValueAtTime(200, now + 0.3);
+          this.gainNode.gain.setValueAtTime(0.2, now);
+          oscillator.start(now);
+          oscillator.stop(now + 0.6);
+          break;
+
+        case "success":
+          // Melodia de sucesso: Do-Mi-Sol
+          oscillator.frequency.setValueAtTime(523, now); // Do
+          oscillator.frequency.setValueAtTime(659, now + 0.1); // Mi
+          oscillator.frequency.setValueAtTime(784, now + 0.2); // Sol
+          this.gainNode.gain.setValueAtTime(0.15, now);
+          oscillator.start(now);
+          oscillator.stop(now + 0.4);
+          break;
+      }
+    } catch (error) {
+      console.warn('Erro ao tocar som:', error);
+    }
+  }
+
+  resume() {
+    if (this.audioContext && this.audioContext.state === 'suspended') {
+      this.audioContext.resume();
+    }
+  }
+}
+
 export const useGame = () => {
   const [gameState, setGameState] = useState<GameState>({
     teams: [],
@@ -41,6 +123,7 @@ export const useGame = () => {
 
   const [intervalId, setIntervalId] = useState<number | null>(null);
   const [aiStatus, setAiStatus] = useState(getAIStatus());
+  const audioManagerRef = useRef<AudioManager>(new AudioManager());
 
   const createTeams = useCallback((teamNames: string[]): Team[] => {
     return teamNames.map((name, index) => ({
@@ -85,49 +168,7 @@ export const useGame = () => {
 
   const playSound = useCallback(
     (type: "tick" | "warning" | "timeup" | "success") => {
-      try {
-        const audioContext = new window.AudioContext();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        switch (type) {
-          case "warning":
-            oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
-            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-            oscillator.start();
-            oscillator.stop(audioContext.currentTime + 0.2);
-            break;
-          case "timeup":
-            oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
-            oscillator.frequency.setValueAtTime(
-              200,
-              audioContext.currentTime + 0.5
-            );
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            oscillator.start();
-            oscillator.stop(audioContext.currentTime + 1);
-            break;
-          case "success":
-            oscillator.frequency.setValueAtTime(523, audioContext.currentTime);
-            oscillator.frequency.setValueAtTime(
-              659,
-              audioContext.currentTime + 0.2
-            );
-            oscillator.frequency.setValueAtTime(
-              784,
-              audioContext.currentTime + 0.4
-            );
-            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-            oscillator.start();
-            oscillator.stop(audioContext.currentTime + 0.6);
-            break;
-        }
-      } catch {
-        console.log("Audio not supported");
-      }
+      audioManagerRef.current.playSound(type);
     },
     []
   );
@@ -266,6 +307,16 @@ export const useGame = () => {
     }));
   }, [intervalId]);
 
+  // Inicializar áudio quando o componente montar
+  useEffect(() => {
+    audioManagerRef.current.init();
+  }, []);
+
+  // Função para ativar o áudio (chamada pelo AudioActivator)
+  const activateAudio = useCallback(() => {
+    audioManagerRef.current.resume();
+  }, []);
+
   // Atualiza o status da IA periodicamente
   useEffect(() => {
     const updateAIStatus = () => {
@@ -296,6 +347,7 @@ export const useGame = () => {
   return {
     gameState,
     aiStatus,
+    activateAudio,
     createTeams,
     startGame,
     startTimer,

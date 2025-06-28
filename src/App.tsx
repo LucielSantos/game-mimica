@@ -1,9 +1,33 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { GameProvider } from "./context/GameContext";
+import { AudioActivator } from "./components/AudioActivator";
+import { useGameContext } from "./context/GameContext";
 import { HomePage } from "./pages/HomePage";
 import { GameSetupPage } from "./pages/GameSetupPage";
 import { GamePlayPage } from "./pages/GamePlayPage";
 import { LeaderboardPage } from "./pages/LeaderboardPage";
+
+function AppContent() {
+  const { activateAudio } = useGameContext();
+
+  const handleAudioActivate = () => {
+    activateAudio();
+    console.log('Áudio ativado pelo usuário');
+  };
+
+  return (
+    <AudioActivator onActivate={handleAudioActivate}>
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/setup" element={<GameSetupPage />} />
+          <Route path="/game" element={<GamePlayPage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
+        </Routes>
+      </Router>
+    </AudioActivator>
+  );
+}
 
 function App() {
   return (
@@ -18,14 +42,7 @@ function App() {
 
       <div className="relative z-10">
         <GameProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/setup" element={<GameSetupPage />} />
-              <Route path="/game" element={<GamePlayPage />} />
-              <Route path="/leaderboard" element={<LeaderboardPage />} />
-            </Routes>
-          </Router>
+          <AppContent />
         </GameProvider>
       </div>
     </div>

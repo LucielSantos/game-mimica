@@ -9,6 +9,7 @@ interface GameContextType {
     hasApiKey: boolean;
     enabled: boolean;
   };
+  activateAudio: () => void;
   createTeams: (names: string[]) => Team[];
   startGame: (settings: GameSettings) => void;
   startTimer: () => void;

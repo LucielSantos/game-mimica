@@ -38,9 +38,6 @@ export const GamePlay: React.FC<GamePlayProps> = ({
     <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6 sm:space-y-8">
       {/* Header */}
       <div className="text-center">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-          🎭 Jogo de Mímica
-        </h1>
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
           <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full">Rodada {gameState.round}</span>
           <span className="hidden sm:inline">•</span>
