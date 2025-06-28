@@ -137,7 +137,7 @@ export const SuccessEffect: React.FC<SuccessEffectProps> = ({
             {/* Texto animado */}
             <div className="space-y-4">
               <h2 className="text-6xl font-bold text-white drop-shadow-2xl animate-success-bounce">
-                🎉 ACERTOU! 🎉
+                🎉 ACERTOU!
               </h2>
               <p className="text-3xl text-white drop-shadow-2xl animate-success-pulse">
                 +1 Ponto!
