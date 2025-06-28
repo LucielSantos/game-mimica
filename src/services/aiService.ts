@@ -1,3 +1,5 @@
+import { categories } from '../data/categories';
+
 export interface AIWordResponse {
   word: string;
   category: string;
@@ -15,129 +17,6 @@ export interface AIServiceConfig {
 
 class AIService {
   private config: AIServiceConfig;
-  private fallbackWords: Record<string, string[]> = {
-    animals: [
-      'elefante', 'girafa', 'leão', 'macaco', 'pinguim', 'borboleta', 
-      'cobra', 'águia', 'tubarão', 'golfinho', 'coelho', 'tartaruga',
-      'canguru', 'zebra', 'rinoceronte', 'hipopótamo', 'flamingo', 
-      'pavão', 'coruja', 'beija-flor', 'preguiça', 'tamanduá',
-      'polvo', 'caranguejo', 'libélula', 'morcego', 'esquilo', 'raposa',
-      'tigre', 'urso', 'lobo', 'raposa', 'cervo', 'javali', 'porco-espinho',
-      'toupeira', 'rato', 'camundongo', 'hamster', 'gerbil', 'chinchila',
-      'furão', 'doninha', 'texugo', 'guaxinim', 'lontra', 'castor', 'capivara'
-    ],
-    movies: [
-      'Titanic', 'Avatar', 'Vingadores', 'Frozen', 'Batman', 'Superman',
-      'Harry Potter', 'Star Wars', 'Jurassic Park', 'Matrix', 'Toy Story',
-      'Shrek', 'Procurando Nemo', 'Rei Leão', 'Cidade Maravilhosa',
-      'Tropa de Elite', 'Central do Brasil', 'Dona Flor', 'Carandiru',
-      'Cidade de Deus', 'Elite Squad', 'Fast Five', 'Velozes e Furiosos',
-      'Interestelar', 'Inception', 'O Senhor dos Anéis', 'Piratas do Caribe',
-      'Mad Max', 'Madagascar', 'Kung Fu Panda', 'Como Treinar Seu Dragão',
-      'Divertidamente', 'Zootopia', 'Moana', 'Encanto', 'Luca', 'Soul'
-    ],
-    professions: [
-      'médico', 'professor', 'bombeiro', 'policial', 'cozinheiro', 'dentista',
-      'enfermeiro', 'advogado', 'engenheiro', 'arquiteto', 'jornalista',
-      'veterinário', 'farmacêutico', 'piloto', 'motorista', 'garçom',
-      'cabeleireiro', 'fotógrafo', 'músico', 'pintor', 'escritor',
-      'programador', 'designer', 'psicólogo', 'fisioterapeuta', 'contador',
-      'eletricista', 'encanador', 'pedreiro', 'carpinteiro', 'mecânico',
-      'vendedor', 'recepcionista', 'secretária', 'administrador', 'gerente',
-      'diretor', 'presidente', 'empresário', 'investidor', 'consultor'
-    ],
-    objects: [
-      'guarda-chuva', 'óculos', 'relógio', 'chave', 'telefone', 'computador',
-      'televisão', 'geladeira', 'micro-ondas', 'aspirador', 'ferro de passar',
-      'secador', 'escova de dentes', 'sabonete', 'toalha', 'travesseiro',
-      'cobertor', 'cadeira', 'mesa', 'luminária', 'vaso', 'quadro',
-      'espelho', 'ventilador', 'ar condicionado', 'liquidificador',
-      'batedeira', 'panela', 'frigideira', 'prato', 'copo', 'garfo', 'faca',
-      'colher', 'faca de pão', 'ralador', 'peneira', 'tábua de corte'
-    ],
-    food: [
-      'pizza', 'hambúrguer', 'macarrão', 'arroz', 'feijão', 'salada',
-      'sorvete', 'chocolate', 'bolo', 'biscoito', 'pão', 'queijo',
-      'presunto', 'frango', 'carne', 'peixe', 'banana', 'maçã',
-      'laranja', 'uva', 'morango', 'abacaxi', 'melancia', 'manga',
-      'brigadeiro', 'açaí', 'tapioca', 'coxinha', 'pastel', 'feijoada',
-      'moqueca', 'vatapá', 'caruru', 'acarajé', 'pão de queijo', 'empada',
-      'quindim', 'canjica', 'pudim', 'mousse', 'torta', 'sanduíche'
-    ],
-    actions: [
-      'correr', 'pular', 'dançar', 'nadar', 'voar', 'dirigir', 'cozinhar',
-      'limpar', 'estudar', 'trabalhar', 'dormir', 'acordar', 'escutar',
-      'falar', 'escrever', 'ler', 'desenhar', 'pintar', 'cantar',
-      'tocar instrumento', 'meditar', 'exercitar', 'abraçar', 'beijar',
-      'escalar', 'mergulhar', 'surfar', 'esquiar', 'patinar', 'jogar',
-      'brincar', 'rir', 'chorar', 'gritar', 'sussurrar', 'assobiar'
-    ],
-    places: [
-      'escola', 'hospital', 'supermercado', 'shopping', 'cinema', 'teatro',
-      'museu', 'biblioteca', 'parque', 'praia', 'montanha', 'floresta',
-      'deserto', 'cidade', 'fazenda', 'aeroporto', 'estação', 'hotel',
-      'restaurante', 'igreja', 'banco', 'correios', 'farmácia',
-      'academia', 'salão de beleza', 'padaria', 'açougue', 'posto',
-      'loja', 'mercado', 'feira', 'praça', 'rua', 'avenida', 'rodovia'
-    ],
-    sports: [
-      'futebol', 'basquete', 'vôlei', 'tênis', 'natação', 'corrida',
-      'ciclismo', 'boxe', 'judô', 'karatê', 'ginástica', 'atletismo',
-      'surfe', 'skate', 'escalada', 'golfe', 'ping pong', 'badminton',
-      'handebol', 'rugby', 'hockey', 'polo aquático', 'esgrima',
-      'beisebol', 'softball', 'críquete', 'lacrosse', 'paintball'
-    ],
-    emotions: [
-      'felicidade', 'tristeza', 'raiva', 'medo', 'surpresa', 'nojo',
-      'amor', 'ódio', 'ciúme', 'inveja', 'vergonha', 'orgulho',
-      'ansiedade', 'calma', 'excitação', 'tédio', 'nostalgia',
-      'esperança', 'desespero', 'gratidão', 'frustração', 'alívio',
-      'alegria', 'contentamento', 'satisfação', 'euforia', 'entusiasmo'
-    ],
-    technology: [
-      'smartphone', 'tablet', 'notebook', 'smartwatch', 'fone de ouvido',
-      'carregador', 'mouse', 'teclado', 'monitor', 'impressora',
-      'roteador', 'pendrive', 'HD externo', 'webcam', 'microfone',
-      'drone', 'realidade virtual', 'inteligência artificial',
-      'bluetooth', 'wifi', 'aplicativo', 'software', 'hardware',
-      'processador', 'memória RAM', 'placa de vídeo', 'SSD', 'HD'
-    ],
-    music: [
-      'violão', 'piano', 'bateria', 'guitarra', 'baixo', 'flauta',
-      'saxofone', 'trompete', 'violino', 'harpa', 'acordeon',
-      'rock', 'pop', 'samba', 'forró', 'funk', 'rap', 'jazz',
-      'clássica', 'eletrônica', 'reggae', 'blues', 'country',
-      'sertanejo', 'pagode', 'axé', 'MPB', 'bossa nova', 'tango'
-    ],
-    nature: [
-      'árvore', 'flor', 'grama', 'folha', 'galho', 'raiz', 'semente',
-      'sol', 'lua', 'estrela', 'nuvem', 'chuva', 'vento', 'neve',
-      'rio', 'lago', 'mar', 'oceano', 'cachoeira', 'ilha',
-      'vulcão', 'terremoto', 'furacão', 'arco-íris', 'relâmpago',
-      'trovão', 'granizo', 'geada', 'orvalho', 'neblina', 'tempestade'
-    ],
-    vehicles: [
-      'carro', 'moto', 'bicicleta', 'ônibus', 'caminhão', 'trem',
-      'avião', 'helicóptero', 'barco', 'navio', 'submarino',
-      'foguete', 'ambulância', 'bombeiro', 'polícia', 'táxi',
-      'uber', 'patinete', 'skate', 'patins', 'jet ski', 'lancha',
-      'iate', 'canoa', 'jangada', 'balsa', 'ferry', 'metrô'
-    ],
-    clothing: [
-      'camiseta', 'calça', 'shorts', 'vestido', 'saia', 'blusa',
-      'jaqueta', 'casaco', 'suéter', 'moletom', 'camisa', 'gravata',
-      'sapato', 'tênis', 'sandália', 'chinelo', 'bota', 'meia',
-      'cueca', 'calcinha', 'sutiã', 'pijama', 'maiô', 'biquíni',
-      'boné', 'chapéu', 'gorro', 'cachecol', 'luvas', 'cinto'
-    ],
-    games: [
-      'futebol de botão', 'xadrez', 'damas', 'dominó', 'baralho',
-      'uno', 'monopoly', 'war', 'banco imobiliário', 'ludo',
-      'videogame', 'playstation', 'xbox', 'nintendo', 'pc gamer',
-      'minecraft', 'fortnite', 'among us', 'free fire', 'fifa',
-      'pokemon', 'mario', 'sonic', 'tetris', 'pac-man', 'space invaders'
-    ]
-  };
 
   constructor(config: AIServiceConfig = {}) {
     this.config = {
@@ -201,63 +80,80 @@ class AIService {
       Responda APENAS com a palavra, sem aspas, pontuação ou explicações.`,
       
       sports: `Gere uma palavra relacionada a ESPORTES em português brasileiro. 
-      Pode ser modalidade esportiva, equipamento ou termo relacionado.
-      Dificuldade: ${difficulty === 'easy' ? 'esportes muito populares e fáceis de representar' : 
+      O esporte deve ser adequado para o jogo de mímica/desenho.
+      Dificuldade: ${difficulty === 'easy' ? 'esportes muito comuns e fáceis de representar' : 
                    difficulty === 'medium' ? 'esportes conhecidos mas com elementos específicos' : 
                    'esportes mais específicos ou menos conhecidos'}.
       Responda APENAS com a palavra, sem aspas, pontuação ou explicações.`,
       
-      emotions: `Gere uma palavra relacionada a EMOÇÕES/SENTIMENTOS em português brasileiro. 
+      emotions: `Gere uma palavra relacionada a EMOÇÕES em português brasileiro. 
       A emoção deve ser adequada para o jogo de mímica/desenho.
-      Dificuldade: ${difficulty === 'easy' ? 'emoções básicas e fáceis de representar' : 
-                   difficulty === 'medium' ? 'emoções conhecidas mas com nuances específicas' : 
-                   'emoções mais complexas ou específicas'}.
+      Dificuldade: ${difficulty === 'easy' ? 'emoções muito comuns e fáceis de representar' : 
+                   difficulty === 'medium' ? 'emoções conhecidas mas com elementos específicos' : 
+                   'emoções mais específicas ou complexas'}.
       Responda APENAS com a palavra, sem aspas, pontuação ou explicações.`,
       
       technology: `Gere uma palavra relacionada a TECNOLOGIA em português brasileiro. 
-      Pode ser dispositivo, aplicativo, conceito tecnológico.
+      O termo deve ser adequado para o jogo de mímica/desenho.
       Dificuldade: ${difficulty === 'easy' ? 'tecnologias muito comuns e fáceis de representar' : 
                    difficulty === 'medium' ? 'tecnologias conhecidas mas com elementos específicos' : 
-                   'tecnologias mais avançadas ou específicas'}.
+                   'tecnologias mais específicas ou avançadas'}.
       Responda APENAS com a palavra, sem aspas, pontuação ou explicações.`,
       
       music: `Gere uma palavra relacionada a MÚSICA em português brasileiro. 
-      Pode ser instrumento, gênero musical, termo musical.
-      Dificuldade: ${difficulty === 'easy' ? 'elementos musicais muito comuns e fáceis de representar' : 
-                   difficulty === 'medium' ? 'elementos musicais conhecidos mas com características específicas' : 
-                   'elementos musicais mais específicos ou técnicos'}.
+      Pode ser instrumento, gênero musical, ou termo musical.
+      Dificuldade: ${difficulty === 'easy' ? 'músicas/instrumentos muito comuns e fáceis de representar' : 
+                   difficulty === 'medium' ? 'músicas/instrumentos conhecidos mas com elementos específicos' : 
+                   'músicas/instrumentos mais específicos ou menos conhecidos'}.
       Responda APENAS com a palavra, sem aspas, pontuação ou explicações.`,
       
       nature: `Gere uma palavra relacionada a NATUREZA em português brasileiro. 
-      Pode ser elemento natural, fenômeno, paisagem.
+      O termo deve ser adequado para o jogo de mímica/desenho.
       Dificuldade: ${difficulty === 'easy' ? 'elementos naturais muito comuns e fáceis de representar' : 
                    difficulty === 'medium' ? 'elementos naturais conhecidos mas com características específicas' : 
                    'elementos naturais mais específicos ou exóticos'}.
       Responda APENAS com a palavra, sem aspas, pontuação ou explicações.`,
       
       vehicles: `Gere uma palavra relacionada a VEÍCULOS em português brasileiro. 
-      Pode ser tipo de transporte, marca, modelo.
+      O veículo deve ser adequado para o jogo de mímica/desenho.
       Dificuldade: ${difficulty === 'easy' ? 'veículos muito comuns e fáceis de representar' : 
                    difficulty === 'medium' ? 'veículos conhecidos mas com características específicas' : 
-                   'veículos mais específicos ou menos comuns'}.
+                   'veículos mais específicos ou menos conhecidos'}.
       Responda APENAS com a palavra, sem aspas, pontuação ou explicações.`,
       
-      clothing: `Gere uma palavra relacionada a ROUPAS/VESTUÁRIO em português brasileiro. 
-      Pode ser peça de roupa, acessório, tipo de vestimenta.
+      clothing: `Gere uma palavra relacionada a ROUPAS em português brasileiro. 
+      A peça de roupa deve ser adequada para o jogo de mímica/desenho.
       Dificuldade: ${difficulty === 'easy' ? 'roupas muito comuns e fáceis de representar' : 
                    difficulty === 'medium' ? 'roupas conhecidas mas com características específicas' : 
                    'roupas mais específicas ou menos comuns'}.
       Responda APENAS com a palavra, sem aspas, pontuação ou explicações.`,
       
       games: `Gere uma palavra relacionada a JOGOS em português brasileiro. 
-      Pode ser jogo de tabuleiro, videogame, esporte, brincadeira.
-      Dificuldade: ${difficulty === 'easy' ? 'jogos muito populares e fáceis de representar' : 
+      Pode ser nome de jogo, console, ou termo relacionado a jogos.
+      Dificuldade: ${difficulty === 'easy' ? 'jogos muito comuns e fáceis de representar' : 
                    difficulty === 'medium' ? 'jogos conhecidos mas com elementos específicos' : 
                    'jogos mais específicos ou menos conhecidos'}.
+      Responda APENAS com a palavra, sem aspas, pontuação ou explicações.`,
+      
+      cartoons: `Gere uma palavra relacionada a DESENHOS ANIMADOS em português brasileiro. 
+      Pode ser personagem, série, ou termo relacionado a animações.
+      Dificuldade: ${difficulty === 'easy' ? 'desenhos muito populares e fáceis de representar' : 
+                   difficulty === 'medium' ? 'desenhos conhecidos mas com elementos específicos' : 
+                   'desenhos mais específicos ou menos conhecidos'}.
+      Responda APENAS com a palavra, sem aspas, pontuação ou explicações.`,
+      
+      bible: `Gere uma palavra relacionada a BÍBLIA em português brasileiro. 
+      Pode ser personagem bíblico, lugar, história, ou termo religioso.
+      Dificuldade: ${difficulty === 'easy' ? 'histórias e personagens muito conhecidos' : 
+                   difficulty === 'medium' ? 'histórias conhecidas mas com elementos específicos' : 
+                   'histórias mais específicas ou menos conhecidas'}.
       Responda APENAS com a palavra, sem aspas, pontuação ou explicações.`
     };
 
-    return categoryPrompts[category] || categoryPrompts.objects;
+    return categoryPrompts[category] || `Gere uma palavra relacionada a ${category} em português brasileiro. 
+    A palavra deve ser adequada para o jogo de mímica/desenho. 
+    Dificuldade: ${difficulty}.
+    Responda APENAS com a palavra, sem aspas, pontuação ou explicações.`;
   }
 
   private async callOpenAI(prompt: string): Promise<string> {
@@ -276,10 +172,6 @@ class AIService {
           model: this.config.model,
           messages: [
             {
-              role: 'system',
-              content: 'Você é um assistente especializado em gerar palavras para jogos de mímica e desenho. Sempre responda apenas com a palavra solicitada, sem aspas, pontuação ou explicações adicionais.'
-            },
-            {
               role: 'user',
               content: prompt
             }
@@ -290,11 +182,17 @@ class AIService {
       });
 
       if (!response.ok) {
-        throw new Error(`Erro na API: ${response.status}`);
+        throw new Error(`Erro na API: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
-      return data.choices[0]?.message?.content?.trim() || '';
+      const word = data.choices[0]?.message?.content?.trim();
+
+      if (!word) {
+        throw new Error('Resposta vazia da API');
+      }
+
+      return word;
     } catch (error) {
       console.error('Erro ao chamar OpenAI:', error);
       throw error;
@@ -302,50 +200,50 @@ class AIService {
   }
 
   private getFallbackWord(category: string): string {
-    const words = this.fallbackWords[category] || this.fallbackWords.objects;
-    return words[Math.floor(Math.random() * words.length)];
+    // Buscar a categoria no arquivo categories.ts
+    const categoryData = categories.find(cat => cat.id === category);
+    
+    if (!categoryData || !categoryData.words || categoryData.words.length === 0) {
+      // Fallback genérico se a categoria não for encontrada
+      return 'palavra';
+    }
+    
+    // Retornar uma palavra aleatória da categoria
+    const randomIndex = Math.floor(Math.random() * categoryData.words.length);
+    return categoryData.words[randomIndex];
   }
 
   private isAIAvailable(): boolean {
-    return !!(this.config.enableAI && !!this.config.apiKey);
+    return Boolean(this.config.enableAI && this.config.apiKey);
   }
 
   async generateWord(category: string, difficulty: 'easy' | 'medium' | 'hard' = 'medium'): Promise<AIWordResponse> {
-    // Verifica se a IA está disponível
-    if (!this.isAIAvailable()) {
-      console.log('IA não disponível, usando palavras locais');
-      return {
-        word: this.getFallbackWord(category),
-        category,
-        difficulty,
-        source: 'fallback'
-      };
-    }
-
     try {
-      const prompt = this.getPromptForCategory(category, difficulty);
-      const word = await this.callOpenAI(prompt);
-      
-      // Valida se a palavra retornada é válida
-      if (word && word.length > 0 && word.length < 50) {
+      if (this.isAIAvailable()) {
+        const prompt = this.getPromptForCategory(category, difficulty);
+        const word = await this.callOpenAI(prompt);
+        
         return {
-          word: word,
+          word,
           category,
           difficulty,
           source: 'ai'
         };
-      } else {
-        throw new Error('Palavra inválida retornada pela IA');
       }
     } catch (error) {
-      console.warn('Erro ao gerar palavra com IA, usando fallback:', error);
-      return {
-        word: this.getFallbackWord(category),
-        category,
-        difficulty,
-        source: 'fallback'
-      };
+      console.warn('Falha na geração por IA, usando fallback:', error);
     }
+
+    // Fallback para palavras locais
+    const word = this.getFallbackWord(category);
+    const categoryData = categories.find(cat => cat.id === category);
+    
+    return {
+      word,
+      category,
+      difficulty: categoryData?.difficulty || 'medium',
+      source: 'fallback'
+    };
   }
 
   async generateMultipleWords(category: string, count: number = 1, difficulty: 'easy' | 'medium' | 'hard' = 'medium'): Promise<AIWordResponse[]> {
@@ -359,21 +257,22 @@ class AIService {
     return words;
   }
 
-  // Método para forçar o uso apenas de palavras locais
   generateLocalWord(category: string): AIWordResponse {
+    const word = this.getFallbackWord(category);
+    const categoryData = categories.find(cat => cat.id === category);
+    
     return {
-      word: this.getFallbackWord(category),
+      word,
       category,
-      difficulty: 'medium',
+      difficulty: categoryData?.difficulty || 'medium',
       source: 'fallback'
     };
   }
 
-  // Método para verificar status da IA
   getAIStatus(): { available: boolean; hasApiKey: boolean; enabled: boolean } {
     return {
       available: this.isAIAvailable(),
-      hasApiKey: !!this.config.apiKey,
+      hasApiKey: Boolean(this.config.apiKey),
       enabled: Boolean(this.config.enableAI)
     };
   }
@@ -386,31 +285,28 @@ class AIService {
     return { ...this.config };
   }
 
-  // Método para alternar entre IA e local
   toggleAI(enabled: boolean): void {
     this.config.enableAI = enabled;
   }
 }
 
-// Instância singleton com configuração automática
-export const aiService = new AIService({
+// Instância singleton
+const aiService = new AIService({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  enableAI: !!import.meta.env.VITE_OPENAI_API_KEY,
+  enableAI: true
 });
 
-// Função helper para facilitar o uso
+// Funções de exportação
 export const generateWord = (category: string, difficulty?: 'easy' | 'medium' | 'hard') => {
   return aiService.generateWord(category, difficulty);
 };
 
-// Função helper para gerar apenas palavras locais
 export const generateLocalWord = (category: string) => {
   return aiService.generateLocalWord(category);
 };
 
-// Função helper para verificar status
 export const getAIStatus = () => {
   return aiService.getAIStatus();
 };
 
-export default AIService; 
+export default aiService; 
