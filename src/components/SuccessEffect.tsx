@@ -35,15 +35,15 @@ export const SuccessEffect: React.FC<SuccessEffectProps> = ({
     // Mostrar texto após 100ms
     const textTimer = setTimeout(() => setShowText(true), 100);
 
-    // Criar partículas de explosão
-    const newParticles: Particle[] = Array.from({ length: 30 }, (_, i) => ({
+    // Criar mais partículas de explosão para ocupar toda a tela
+    const newParticles: Particle[] = Array.from({ length: 60 }, (_, i) => ({
       id: i,
       x: window.innerWidth / 2,
       y: window.innerHeight / 2,
-      vx: (Math.random() - 0.5) * 15,
-      vy: (Math.random() - 0.5) * 15,
+      vx: (Math.random() - 0.5) * 20,
+      vy: (Math.random() - 0.5) * 20,
       life: 1,
-      maxLife: Math.random() * 0.5 + 0.5
+      maxLife: Math.random() * 0.8 + 0.4
     }));
 
     setParticles(newParticles);
@@ -55,9 +55,9 @@ export const SuccessEffect: React.FC<SuccessEffectProps> = ({
           ...particle,
           x: particle.x + particle.vx,
           y: particle.y + particle.vy,
-          vx: particle.vx * 0.95,
-          vy: particle.vy * 0.95,
-          life: particle.life - 0.02
+          vx: particle.vx * 0.92,
+          vy: particle.vy * 0.92,
+          life: particle.life - 0.015
         }));
 
         return updatedParticles.filter(particle => particle.life > 0);
@@ -66,13 +66,13 @@ export const SuccessEffect: React.FC<SuccessEffectProps> = ({
 
     const interval = setInterval(animate, 16);
 
-    // Limpar após 2 segundos
+    // Limpar após 3 segundos
     const cleanupTimer = setTimeout(() => {
       clearInterval(interval);
       setParticles([]);
       setShowText(false);
       onComplete?.();
-    }, 2000);
+    }, 3000);
 
     return () => {
       clearTimeout(textTimer);
@@ -85,22 +85,22 @@ export const SuccessEffect: React.FC<SuccessEffectProps> = ({
 
   return (
     <>
-      {/* Overlay de fundo */}
-      <div className="fixed inset-0 bg-black bg-opacity-30 z-40" />
+      {/* Overlay de fundo com gradiente */}
+      <div className="fixed inset-0 bg-gradient-to-br from-black/40 via-black/30 to-black/40 z-[9998]" />
       
       {/* Partículas */}
-      <div className="fixed inset-0 pointer-events-none z-50">
+      <div className="fixed inset-0 pointer-events-none z-[9999]">
         {particles.map(particle => (
           <div
             key={particle.id}
-            className="absolute w-1 h-1 rounded-full"
+            className="absolute w-2 h-2 rounded-full"
             style={{
               left: particle.x,
               top: particle.y,
               backgroundColor: teamColor,
               opacity: particle.life,
-              transform: `scale(${particle.life})`,
-              boxShadow: `0 0 8px ${teamColor}`,
+              transform: `scale(${particle.life * 2})`,
+              boxShadow: `0 0 12px ${teamColor}`,
             }}
           />
         ))}
@@ -108,34 +108,43 @@ export const SuccessEffect: React.FC<SuccessEffectProps> = ({
 
       {/* Texto de sucesso */}
       {showText && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-          <div className="text-center">
+        <div className="fixed inset-0 flex items-center justify-center z-[9999] pointer-events-none">
+          <div className="text-center animate-success-scale">
             {/* Ícone de sucesso */}
-            <div className="mb-4 flex justify-center">
-              <div className="relative">
+            <div className="mb-8 flex justify-center">
+              <div className="relative animate-success-shake">
                 <div 
-                  className="w-24 h-24 rounded-full flex items-center justify-center animate-success-glow"
+                  className="w-32 h-32 rounded-full flex items-center justify-center animate-success-glow"
                   style={{ backgroundColor: teamColor }}
                 >
-                  <Check className="w-12 h-12 text-white" />
+                  <Check className="w-16 h-16 text-white" />
                 </div>
-                <div className="absolute -top-2 -right-2">
-                  <Star className="w-8 h-8 text-yellow-400 animate-bounce" />
+                <div className="absolute -top-4 -right-4">
+                  <Star className="w-12 h-12 text-yellow-400 animate-bounce" />
                 </div>
-                <div className="absolute -bottom-2 -left-2">
-                  <Trophy className="w-8 h-8 text-yellow-400 animate-bounce" style={{ animationDelay: '0.5s' }} />
+                <div className="absolute -bottom-4 -left-4">
+                  <Trophy className="w-12 h-12 text-yellow-400 animate-bounce" style={{ animationDelay: '0.5s' }} />
+                </div>
+                <div className="absolute -top-4 -left-4">
+                  <Star className="w-10 h-10 text-yellow-300 animate-bounce" style={{ animationDelay: '1s' }} />
+                </div>
+                <div className="absolute -bottom-4 -right-4">
+                  <Trophy className="w-10 h-10 text-yellow-300 animate-bounce" style={{ animationDelay: '1.5s' }} />
                 </div>
               </div>
             </div>
 
             {/* Texto animado */}
-            <div className="space-y-2">
-              <h2 className="text-4xl font-bold text-white drop-shadow-lg animate-success-bounce">
+            <div className="space-y-4">
+              <h2 className="text-6xl font-bold text-white drop-shadow-2xl animate-success-bounce">
                 🎉 ACERTOU! 🎉
               </h2>
-              <p className="text-xl text-white drop-shadow-lg animate-success-pulse">
+              <p className="text-3xl text-white drop-shadow-2xl animate-success-pulse">
                 +1 Ponto!
               </p>
+              <div className="text-xl text-white/80 drop-shadow-lg">
+                Parabéns!
+              </div>
             </div>
           </div>
         </div>

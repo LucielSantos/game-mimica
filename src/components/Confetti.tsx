@@ -22,7 +22,9 @@ interface ConfettiProps {
 const colors = [
   '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
   '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F',
-  '#BB8FCE', '#85C1E9', '#F8C471', '#82E0AA'
+  '#BB8FCE', '#85C1E9', '#F8C471', '#82E0AA',
+  '#FF9FF3', '#54A0FF', '#5F27CD', '#00D2D3',
+  '#FF9F43', '#10AC84', '#FF3838', '#3742FA'
 ];
 
 export const Confetti: React.FC<ConfettiProps> = ({ isActive, onComplete }) => {
@@ -34,18 +36,18 @@ export const Confetti: React.FC<ConfettiProps> = ({ isActive, onComplete }) => {
       return;
     }
 
-    // Criar 50 pedaços de confete
-    const newPieces: ConfettiPiece[] = Array.from({ length: 50 }, (_, i) => ({
+    // Criar 100 pedaços de confete para ocupar toda a tela
+    const newPieces: ConfettiPiece[] = Array.from({ length: 100 }, (_, i) => ({
       id: i,
       x: Math.random() * window.innerWidth,
-      y: -20,
+      y: -50 - Math.random() * 200, // Distribuir melhor no topo
       rotation: Math.random() * 360,
-      scale: Math.random() * 0.5 + 0.5,
+      scale: Math.random() * 0.8 + 0.3,
       color: colors[Math.floor(Math.random() * colors.length)],
       velocity: {
-        x: (Math.random() - 0.5) * 8,
-        y: Math.random() * 3 + 2,
-        rotation: (Math.random() - 0.5) * 10
+        x: (Math.random() - 0.5) * 12,
+        y: Math.random() * 4 + 3,
+        rotation: (Math.random() - 0.5) * 15
       }
     }));
 
@@ -61,24 +63,24 @@ export const Confetti: React.FC<ConfettiProps> = ({ isActive, onComplete }) => {
           rotation: piece.rotation + piece.velocity.rotation,
           velocity: {
             ...piece.velocity,
-            y: piece.velocity.y + 0.1, // gravidade
-            x: piece.velocity.x * 0.99 // resistência do ar
+            y: piece.velocity.y + 0.15, // gravidade aumentada
+            x: piece.velocity.x * 0.98 // resistência do ar
           }
         }));
 
         // Remover pedaços que saíram da tela
-        return updatedPieces.filter(piece => piece.y < window.innerHeight + 50);
+        return updatedPieces.filter(piece => piece.y < window.innerHeight + 100);
       });
     };
 
     const interval = setInterval(animate, 16); // ~60fps
 
-    // Parar animação após 3 segundos
+    // Parar animação após 4 segundos
     const timeout = setTimeout(() => {
       clearInterval(interval);
       setPieces([]);
       onComplete?.();
-    }, 3000);
+    }, 4000);
 
     return () => {
       clearInterval(interval);
@@ -89,17 +91,17 @@ export const Confetti: React.FC<ConfettiProps> = ({ isActive, onComplete }) => {
   if (!isActive) return null;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+    <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
       {pieces.map(piece => (
         <div
           key={piece.id}
-          className="absolute w-2 h-2 rounded-sm"
+          className="absolute w-3 h-3 rounded-sm"
           style={{
             left: piece.x,
             top: piece.y,
             transform: `rotate(${piece.rotation}deg) scale(${piece.scale})`,
             backgroundColor: piece.color,
-            boxShadow: `0 0 4px ${piece.color}`,
+            boxShadow: `0 0 6px ${piece.color}`,
           }}
         />
       ))}
